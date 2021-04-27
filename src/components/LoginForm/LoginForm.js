@@ -1,104 +1,110 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
 // Data
 import { authOperations } from '../../redux/authorization';
 
-class LoginPage extends Component {
-  state = {
-    email: '',
-    password: '',
-  };
+export default function LoginPage() {
+  // Hooks
+  // useState
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  //МЕТОДЫ
+  // useDispatch
+  const dispatch = useDispatch();
+  // const onLogin = dispatch(authOperations.logIn({ email, password }));
+
+  // Function
   //Получение данных из input
-  handleChange = ({ target: { name, value } }) => {
+  const handleChange = useCallback(event => {
     // console.log(value);
-    this.setState({ [name]: value });
-  };
+    const { name, value } = event.target;
+
+    switch (name) {
+      case 'email':
+        setEmail(value);
+        break;
+
+      case 'password':
+        setPassword(value);
+        break;
+
+      default:
+        console.warn(`Тип поля name - ${name} не обрабатывается`);
+    }
+  }, []);
 
   // Отправка данных из формы
-  handleSubmit = event => {
-    event.preventDefault();
+  const handleSubmit = useCallback(
+    event => {
+      event.preventDefault();
 
-    // // если отсутствуют данные
-    // console.log(this.state.email);
-    // console.log(this.state.password);
-    if (!this.state.email || !this.state.password) {
-      alert('Fill the Login form');
-      return;
-    }
+      // // если отсутствуют данные
+      // console.log(email);
+      // console.log(password);
+      if (!email || !password) {
+        alert('Fill the Login form');
+        return;
+      }
 
-    // вызов dispatch onLogin
-    this.props.onLogin(this.state);
-    // очистка данных в форме
-    this.setState({ email: '', password: '' });
-  };
+      // вызов dispatch onLogin
+      dispatch(authOperations.logIn({ email, password }));
 
-  render() {
-    const { email, password } = this.state;
+      // очистка данных в форме
+      setEmail('');
+      setPassword('');
+    },
+    [dispatch, email, password],
+  );
 
-    return (
-      <div className="UserMenu">
-        <h2 className="header-title">Login Page</h2>
+  return (
+    <div className="UserMenu">
+      <h2 className="header-title">Login Page</h2>
 
-        {/* форма из bootstrap. Подключение в index.html */}
-        <form
-          onSubmit={this.handleSubmit} //autoComplete="off"
-        >
-          {/* Email */}
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              Email address
-            </label>
+      {/* форма из bootstrap. Подключение в index.html */}
+      <form
+        onSubmit={handleSubmit} //autoComplete="off"
+      >
+        {/* Email */}
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">
+            Email address
+          </label>
 
-            <input
-              type="email"
-              className="form-control"
-              aria-describedby="emailHelp"
-              name="email"
-              value={email}
-              onChange={this.handleChange}
-            />
+          <input
+            type="email"
+            className="form-control"
+            aria-describedby="emailHelp"
+            name="email"
+            value={email}
+            onChange={handleChange}
+          />
 
-            <div id="emailHelp" className="form-text">
-              We'll never share your email with anyone else.
-            </div>
+          <div id="emailHelp" className="form-text">
+            We'll never share your email with anyone else.
           </div>
+        </div>
 
-          {/* Password */}
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
+        {/* Password */}
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
 
-            <input
-              type="password"
-              className="form-control"
-              name="password"
-              value={password}
-              onChange={this.handleChange}
-            />
-          </div>
+          <input
+            type="password"
+            className="form-control"
+            name="password"
+            value={password}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* Button */}
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
-        </form>
-      </div>
-    );
-  }
+        {/* Button */}
+        <button type="submit" className="btn btn-primary">
+          Submit
+        </button>
+      </form>
+    </div>
+  );
 }
-
-LoginPage.propTypes = {
-  onLogin: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = {
-  //для dispatch нужны authOperations для регистрации
-  onLogin: authOperations.logIn,
-};
-
-export default connect(null, mapDispatchToProps)(LoginPage);

@@ -2,14 +2,21 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
-import { connect } from 'react-redux'; //для подключения к глобальному store.js
+import { useDispatch, useSelector } from 'react-redux';
 
 // Data
 import { contactsOperations, contactsSelectors } from '../../redux/phonebook';
 
 import s from './ContactList.module.css';
 
-const ContactList = ({ contacts, onDeleteContact }) => {
+export default function ContactList() {
+  // useSelector
+  const contacts = useSelector(contactsSelectors.getFilteredContacts);
+
+  // useDispatch
+  const dispatch = useDispatch();
+  const onDeleteContact = id => dispatch(contactsOperations.deleteContact(id));
+
   return (
     <ul className={s.ContactsList}>
       {contacts.map(({ id, name, number }) => (
@@ -28,7 +35,7 @@ const ContactList = ({ contacts, onDeleteContact }) => {
       ))}
     </ul>
   );
-};
+}
 
 ContactList.propTypes = {
   contacts: PropTypes.arrayOf(
@@ -38,17 +45,4 @@ ContactList.propTypes = {
       number: PropTypes.string.isRequired,
     }),
   ),
-  onDeleteContact: PropTypes.func.isRequired,
 };
-
-const mapStateToProps = state => ({
-  // phonebook: имя ключа для state в store.js
-  // для отображения по фильтру
-  contacts: contactsSelectors.getFilteredContacts(state),
-});
-
-const mapDispatchToProps = dispatch => ({
-  onDeleteContact: id => dispatch(contactsOperations.deleteContact(id)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
